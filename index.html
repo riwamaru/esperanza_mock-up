@@ -1,820 +1,1341 @@
 <!doctype html>
 <html lang="ja">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>写メ日記アシスト — モック</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --wine:#7A1F3D; --wine2:#9C3454; --ink:#2A2521; --muted:#857a6e; --bg:#EDE6DE;
-  --card:#ffffff; --line:#E7DFD5; --teal:#1C7A62; --amber:#A8701A; --soft:#F6EFE9; --faint:#F3E9EE;
-  --serif:"Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
-  --sans:"Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", system-ui, sans-serif;
-}
-*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%}
-body{
-  font-family:var(--sans); color:var(--ink);
-  background:
-    radial-gradient(900px 500px at 80% -10%, #f5ece5 0%, transparent 60%),
-    radial-gradient(700px 500px at -10% 110%, #efe4ea 0%, transparent 55%),
-    var(--bg);
-  display:flex; align-items:center; justify-content:center; padding:24px; min-height:100%;
-}
-.stage{display:flex; flex-direction:column; align-items:center; gap:14px}
-.tag{font-family:var(--serif); letter-spacing:.14em; color:var(--wine); font-size:12px; opacity:.85}
-.phone{
-  width:392px; max-width:94vw; height:min(820px,90vh);
-  background:var(--card); border-radius:40px; overflow:hidden; position:relative;
-  box-shadow:0 40px 80px -30px rgba(60,20,35,.45), 0 0 0 9px #1c1518, 0 0 0 11px #2c2226;
-  display:flex; flex-direction:column;
-}
-.notch{position:absolute; top:0; left:50%; transform:translateX(-50%); width:140px; height:26px; background:#1c1518; border-radius:0 0 16px 16px; z-index:40}
-.topbar{height:46px; flex:none; display:flex; align-items:center; justify-content:space-between; padding:0 22px; font-size:12px; color:var(--muted); font-weight:500}
-.scr{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; position:relative}
-.scr::-webkit-scrollbar{width:0}
-.screen{display:none; padding:8px 20px 28px; animation:fade .38s ease both}
-.screen.active{display:block}
-@keyframes fade{from{opacity:0; transform:translateY(8px)}to{opacity:1; transform:none}}
-h1.brand{font-family:var(--serif); font-weight:700; color:var(--wine); margin:0; letter-spacing:.02em}
-.sub{color:var(--muted); font-size:13px; line-height:1.6}
-.label{font-size:12.5px; font-weight:700; color:var(--wine); margin:18px 0 8px; letter-spacing:.02em}
-.label .opt{color:var(--muted); font-weight:500; font-size:11px; margin-left:6px}
-.chips{display:flex; flex-wrap:wrap; gap:8px}
-.chip{font-family:var(--sans); font-size:13px; font-weight:500; padding:8px 14px; border-radius:999px; border:1px solid var(--line); background:#fff; color:var(--ink); cursor:pointer; transition:.18s; user-select:none;}
-.chip:active{transform:scale(.96)}
-.chip.sel{background:var(--wine); border-color:var(--wine); color:#fff; box-shadow:0 6px 14px -6px rgba(122,31,61,.6)}
-.chip.disabled{opacity:.4; cursor:not-allowed;}
-.other-input-wrap{display:none; margin-top:8px; animation:fade .2s ease both}
-.other-input-wrap.active{display:block}
-textarea{width:100%; border:1px solid var(--line); border-radius:14px; padding:12px 14px; font-family:var(--sans); font-size:14px; color:var(--ink); resize:none; min-height:74px; background:#fff;}
-textarea:focus{outline:none; border-color:var(--wine2); box-shadow:0 0 0 3px var(--faint)}
-.field{width:100%; border:1px solid var(--line); border-radius:14px; padding:13px 15px; font-family:var(--sans); font-size:15px; background:#fff}
-.field:focus{outline:none; border-color:var(--wine2); box-shadow:0 0 0 3px var(--faint)}
-.btn{width:100%; border:none; border-radius:16px; padding:15px; font-family:var(--sans); font-weight:700; font-size:15px; background:linear-gradient(135deg,var(--wine),var(--wine2)); color:#fff; cursor:pointer; margin-top:22px; box-shadow:0 14px 26px -12px rgba(122,31,61,.7); transition:.18s; letter-spacing:.04em;}
-.btn:active{transform:translateY(1px)}
-.btn.ghost{background:#fff; color:var(--wine); border:1px solid var(--line); box-shadow:none; font-weight:600; margin-top:10px}
-.login-wrap{height:100%; display:flex; flex-direction:column; justify-content:center; gap:6px; padding:0 4px}
-.crest{width:62px; height:62px; border-radius:18px; background:linear-gradient(135deg,var(--wine),var(--wine2)); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--serif); font-size:30px; font-weight:700; box-shadow:0 16px 30px -14px rgba(122,31,61,.7); margin-bottom:10px}
-.sec{margin-top:20px}
-.sec-h{display:flex; align-items:center; gap:8px; margin-bottom:10px}
-.sec-n{width:24px; height:24px; border-radius:50%; background:var(--wine); color:#fff; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:none}
-.sec-t{font-weight:700; font-size:14.5px}
-.card{border:1px solid var(--line); border-radius:16px; padding:13px 15px; background:#fff; margin-bottom:10px; box-shadow:0 8px 18px -14px rgba(60,20,35,.25)}
-.slot{display:flex; align-items:center; justify-content:space-between; gap:10px}
-.slot .t{font-family:var(--serif); font-size:22px; font-weight:700; color:var(--wine)}
-.reason{font-size:11px; font-weight:600; padding:4px 9px; border-radius:999px; text-align:center}
-.r-tani{background:#eaf4f0; color:var(--teal)}
-.r-mise{background:#f6efe1; color:var(--amber)}
-.copyrow{display:flex; align-items:flex-start; justify-content:space-between; gap:10px}
-.copyrow .x{font-size:14px; line-height:1.6; flex:1}
-.copybtn{flex:none; border:1px solid var(--line); background:var(--soft); color:var(--wine); font-weight:700; font-size:12px; padding:7px 12px; border-radius:10px; cursor:pointer; transition:.15s}
-.copybtn:active{transform:scale(.95)}
-.body-draft{font-size:14px; line-height:1.85; white-space:pre-wrap}
-.ex-tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
-.t-tag{font-size:10.5px; font-weight:600; padding:3px 8px; border-radius:999px; background:var(--faint); color:var(--wine)}
-.pv{font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:999px; background:#eaf4f0; color:var(--teal)}
-.trend{font-size:11.5px; color:var(--muted); margin-top:7px; line-height:1.5}
-.toast{position:absolute; left:50%; bottom:26px; transform:translate(-50%,20px); opacity:0; background:#2a2226; color:#fff; font-size:13px; font-weight:600; padding:11px 18px; border-radius:12px; transition:.28s; z-index:50; pointer-events:none; box-shadow:0 12px 24px -10px rgba(0,0,0,.5);}
-.toast.show{opacity:1; transform:translate(-50%,0)}
-.hint{font-size:11px; color:var(--muted); text-align:center; margin-top:14px; line-height:1.6}
-.disclaimer{text-align:center; font-size:11px; color:#9a8fae; margin-top:4px}
-
-/* 動的追加スタイル */
-.tabs-wrap{margin-top:16px}
-.tab-header{
-  display:flex; gap:0;
-  border-bottom:2px solid var(--line);
-}
-.tab-btn{
-  flex:1; border:none; background:none;
-  font-family:var(--sans); font-size:13px; font-weight:500; color:var(--muted);
-  cursor:pointer; padding:9px 4px; text-align:center;
-  border-bottom:2px solid transparent; margin-bottom:-2px;
-  transition:.15s;
-}
-.tab-btn.active{color:var(--wine); font-weight:700; border-bottom-color:var(--wine);}
-.label-row{display:flex; justify-content:space-between; align-items:center; margin-top:18px;}
-.label-row .label{margin:0;}
-.reset-link{
-  background:none; border:none; color:var(--muted); font-size:11px;
-  cursor:pointer; text-decoration:underline; padding:0; font-family:var(--sans);
-}
-.reset-link:hover{color:var(--wine)}
-.times-hint{font-size:11px; color:var(--muted); margin-top:6px; line-height:1.5}
-.times-hint strong{color:var(--wine)}
-.err-msg{
-  background:#FDF2F4; border:1px solid #F5C6CB; color:#721C24;
-  padding:10px 14px; border-radius:12px; font-size:12px; margin-top:14px;
-  display:none; line-height:1.6; animation:fade .28s ease both;
-}
-</style>
-</head>
-<body>
-<div class="stage">
-  <div class="tag">写メ日記アシスト ｜ MOCK（ダミーデータ）</div>
-  <div class="phone">
-    <div class="notch"></div>
-    <div class="topbar"><span>9:41</span><span>●●●　5G　🔋</span></div>
-    <div class="scr" id="main-scr">
-
-      <!-- ログイン画面 -->
-      <section class="screen active" id="s-login">
-        <div class="login-wrap">
-          <div class="crest">写</div>
-          <h1 class="brand" style="font-size:26px">写メ日記アシスト</h1>
-          <p class="sub">合言葉を入れてログインしてください。<br>スマホで約2分、コピペで投稿。</p>
-          <div style="margin-top:18px">
-            <div class="label">合言葉</div>
-            <input class="field" type="password" value="------" aria-label="合言葉">
-          </div>
-          <button class="btn" onclick="go('input')">ログイン</button>
-          <p class="disclaimer">※ これは動作イメージのモックです</p>
-        </div>
-      </section>
-
-      <!-- 入力画面 -->
-      <section class="screen" id="s-input">
-        <h1 class="brand" style="font-size:21px; margin-top:6px">今日の投稿をつくる</h1>
-        <p class="sub">選んで、ネタを書くだけ。</p>
-
-        <!-- 共通: 何日分 -->
-        <div class="label">何日分</div>
-        <div class="chips" data-single id="chips-days">
-          <span class="chip sel" data-val="1">1日</span>
-          <span class="chip" data-val="2">2日</span>
-          <span class="chip" data-val="3">3日</span>
-        </div>
-
-        <!-- 共通: 1日あたりの本数 -->
-        <div class="label">1日あたりの本数</div>
-        <div class="chips" data-single id="chips-limit">
-          <span class="chip" data-val="1">1枚</span>
-          <span class="chip sel" data-val="2">2枚</span>
-          <span class="chip" data-val="3">3枚</span>
-          <span class="chip" data-val="4">4枚</span>
-          <span class="chip" data-val="5">5枚</span>
-        </div>
-
-        <!-- 日毎の入力タブ（2日以上で表示） -->
-        <div class="tabs-wrap" id="input-tabs-wrap" style="display:none">
-          <div class="tab-header" id="input-tab-header">
-            <button class="tab-btn active" data-day="1">1日目</button>
-            <button class="tab-btn" data-day="2" style="display:none">2日目</button>
-            <button class="tab-btn" data-day="3" style="display:none">3日目</button>
-          </div>
-        </div>
-
-        <!-- 日毎設定エリア -->
-        <div id="day-fields-area" style="margin-top:4px">
-
-          <!-- 掲載するメディア -->
-          <div class="label-row">
-            <div class="label">掲載するメディア</div>
-            <button class="reset-link" onclick="resetField('media')">リセット</button>
-          </div>
-          <div class="chips" id="chips-media" style="margin-top:8px">
-            <span class="chip" data-val="写真">写真</span>
-            <span class="chip" data-val="動画">動画</span>
-          </div>
-
-          <!-- 希望の時間帯 -->
-          <div class="label-row">
-            <div class="label">希望の時間帯</div>
-            <button class="reset-link" onclick="resetField('times')">リセット</button>
-          </div>
-          <div class="chips" id="chips-times" style="margin-top:8px">
-            <span class="chip" data-val="朝">朝</span>
-            <span class="chip" data-val="昼">昼</span>
-            <span class="chip" data-val="夕方">夕方</span>
-            <span class="chip" data-val="夜">夜</span>
-            <span class="chip" data-val="深夜">深夜</span>
-          </div>
-          <div class="times-hint" id="times-hint">合計 <strong id="times-count">0</strong> / <strong id="times-limit">2</strong> 個選択（タップで追加・再タップでリセット）</div>
-
-          <!-- 日記タイプ -->
-          <div class="label-row">
-            <div class="label">日記タイプ</div>
-            <button class="reset-link" onclick="resetField('type')">リセット</button>
-          </div>
-          <div class="chips" data-single id="chips-type" style="margin-top:8px">
-            <span class="chip" data-val="お礼">お礼</span>
-            <span class="chip" data-val="出勤・告知">出勤・告知</span>
-            <span class="chip" data-val="日常ネタ">日常ネタ</span>
-            <span class="chip" data-val="誘い">誘い</span>
-            <span class="chip" data-val="限定告知">限定告知</span>
-            <span class="chip" data-val="問いかけ">問いかけ</span>
-            <span class="chip" data-val="その他">その他</span>
-          </div>
-          <div class="other-input-wrap" id="wrap-other-type">
-            <input class="field" type="text" id="input-other-type" placeholder="その他の日記タイプを入力" oninput="updateDataFromUI()">
-          </div>
-
-          <!-- 気分・状況 -->
-          <div class="label-row">
-            <div class="label">気分・状況</div>
-            <button class="reset-link" onclick="resetField('mood')">リセット</button>
-          </div>
-          <div class="chips" data-single id="chips-mood" style="margin-top:8px">
-            <span class="chip" data-val="元気">元気</span>
-            <span class="chip" data-val="甘えたい">甘えたい</span>
-            <span class="chip" data-val="しっとり">しっとり</span>
-            <span class="chip" data-val="クール">クール</span>
-            <span class="chip" data-val="お疲れ">お疲れ</span>
-            <span class="chip" data-val="その他">その他</span>
-          </div>
-          <div class="other-input-wrap" id="wrap-other-mood">
-            <input class="field" type="text" id="input-other-mood" placeholder="その他の気分・状況を入力" oninput="updateDataFromUI()">
-          </div>
-
-          <!-- 今日のネタ -->
-          <div class="label-row">
-            <div class="label">今日のネタ<span class="opt">自由記述・任意</span></div>
-            <button class="reset-link" onclick="resetField('story')">リセット</button>
-          </div>
-          <textarea id="textarea-story" placeholder="例）新しいワンピース着た／お客さんに褒められた" oninput="updateDataFromUI()" style="margin-top:8px"></textarea>
-        </div>
-
-        <!-- バリデーションエラー -->
-        <div class="err-msg" id="err-msg"></div>
-
-        <button class="btn" onclick="submitForm()">提案をつくる</button>
-        <button class="btn ghost" onclick="go('login')">ログアウト</button>
-      </section>
-
-      <!-- 出力画面 -->
-      <section class="screen" id="s-output">
-        <h1 class="brand" style="font-size:21px; margin-top:6px">今日の提案</h1>
-        <p class="sub">コピーして、ヘブンネットの予約投稿に貼るだけ。</p>
-
-        <!-- 出力切り替えタブ（2日以上で表示） -->
-        <div class="tabs-wrap" id="output-tabs-wrap" style="display:none; margin-bottom:6px">
-          <div class="tab-header" id="output-tab-header">
-            <!-- JS で生成 -->
-          </div>
-        </div>
-
-        <!-- 投稿時間セクション -->
-        <div class="sec">
-          <div class="sec-h"><span class="sec-n">1</span><span class="sec-t">おすすめの投稿時間</span></div>
-          <div id="times-list-container"><!-- JS で生成 --></div>
-          <button class="btn ghost" style="margin-top:10px" onclick="cpTimes(this)">時間の一覧をコピー</button>
-        </div>
-
-        <!-- 提案内容セクション -->
-        <div class="sec">
-          <div class="sec-h"><span class="sec-n">2</span><span class="sec-t">提案内容（本数ごと）</span></div>
-          <div id="proposals-list-container"><!-- JS で生成 --></div>
-        </div>
-
-        <!-- 参考の実例セクション -->
-        <div class="sec">
-          <div class="sec-h"><span class="sec-n">3</span><span class="sec-t">参考の実例（伸びた投稿）</span></div>
-          <div class="card">
-            <div class="x" style="font-size:14px">【お礼】昨日はありがとう♡ また会いたいな</div>
-            <div class="ex-tags"><span class="t-tag">お礼</span><span class="t-tag">夜</span><span class="t-tag">写真</span><span class="pv">PV高</span></div>
-            <div class="trend">傾向：夜＋お礼は伸びやすい（相関の目安）</div>
-          </div>
-          <div class="card">
-            <div class="x" style="font-size:14px">今夜ひとりなの、さみしいな…🌙</div>
-            <div class="ex-tags"><span class="t-tag">誘い</span><span class="t-tag">深夜</span><span class="t-tag">動画</span><span class="pv">PV高</span></div>
-            <div class="trend">傾向：動画＋深夜は伸びやすい（相関の目安）</div>
-          </div>
-        </div>
-
-        <button class="btn ghost" onclick="go('input')">← 入力に戻る</button>
-        <p class="hint">時間は「希望 × 市場の谷間 × 店内分散」から。<br>文章は本人の高PV手本＋文体＋今日のネタから生成。</p>
-      </section>
-
-    </div>
-    <div class="toast" id="toast">コピーしました</div>
-  </div>
-  <div class="tag" style="opacity:.6">タップで操作できます（チップ選択・コピー・画面遷移）</div>
-</div>
-
-<script>
-/* ========== デモデータ ========== */
-var DEMO = {
-  1: [
-    {
-      time: '21:15', reason: '谷間：夜はアクセス多・投稿少',
-      title: '21時から待ってます☺️ ちょっと甘えたい夜🌙',
-      body: 'こんばんは♡ 今日は新しいワンピース着てみたよ〜☺️ ちょっと大人っぽいかな？\n21時から出勤してるので、会いに来てくれたら嬉しいな🌙 今夜は甘えたい気分です。待ってるね。'
-    },
-    {
-      time: '22:30', reason: '店内が空き：自店が固まらない',
-      title: '新しいワンピ、見てほしいな♡',
-      body: 'お疲れ様です✨ さっきアップした写真のワンピース、実は新しく買ったやつなんだ〜👗 直接見るともっと可愛いから、ぜひお店に確かめに来てね？まったりお話しましょう♡'
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>写メ日記アシスト — モック</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --wine: #7A1F3D;
+      --wine2: #9C3454;
+      --ink: #2A2521;
+      --muted: #857a6e;
+      --bg: #EDE6DE;
+      --card: #ffffff;
+      --line: #E7DFD5;
+      --teal: #1C7A62;
+      --amber: #A8701A;
+      --soft: #F6EFE9;
+      --faint: #F3E9EE;
+      --serif: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+      --sans: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", system-ui, sans-serif;
     }
-  ],
-  2: [
-    {
-      time: '20:45', reason: 'ピーク帯の直前で埋もれない',
-      title: '私の一番お気に入りの私服、公開しちゃいます👗✨',
-      body: '今日の出勤服は、私が一番大好きなコーディネートにしてみました！ お気に入りの服を着るとそれだけでテンション上がっちゃうな〜！ 今夜はこのハッピーな気分のまま、みんなと楽しくお話ししたいですっ！お店で待ってるね〜！'
-    },
-    {
-      time: '23:15', reason: 'ゴールデンタイムで閲覧者増',
-      title: 'こういう服着てる女の子、好きですか…？🥺',
-      body: '夜遅くに更新ごめんね。今日の服、実はみんなに褒められたくて選んだんだ。どうかな、似合ってるかな…？感想は直接おねだりしちゃおっと。深夜のまったりタイム、一緒に過ごそうね♡'
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent
     }
-  ],
-  3: [
-    {
-      time: '19:30', reason: '帰宅時間に合わせて閲覧数増',
-      title: '【必読？】私の取扱説明書（トリセツ）作ってみたよ😂',
-      body: '唐突だけど、私のトリセツを書いてみます！笑 ①ほめられるとすぐ照れます ②美味しいもの（特にスイーツ）をくれると懐きます ③寂しがり屋なのでたくさん構ってください！…どうかな？笑 これを踏まえて、今夜私を上手に扱ってくれる人、大募集です♡'
-    },
-    {
-      time: '0:10', reason: 'たまにする深夜投稿でチェックするユーザー増',
-      title: 'トリセツの隠された裏ページ、教えるね🤫',
-      body: '夜遅い時間は、トリセツには書いてない「ちょっぴり甘えん坊モード」が発動しちゃいます……。いつもよりおねだり増えちゃうかもだけど、受け止めてくれる？秘密の時間、二人でまったり過ごそうね。待ってます🌙'
+
+    html,
+    body {
+      margin: 0;
+      height: 100%
     }
-  ]
-};
 
-/* 3本目以降のダミー補充用 */
-var DUMMY_EXTRAS = [
-  {
-    time: '23:50', reason: '深夜のすき間：熱心なファン層が閲覧',
-    title: '深夜もまだ起きてるよ〜🌙',
-    body: 'こんな時間になっちゃったけど、まだ起きてるかな？ちょっとだけ寂しくなっちゃって日記書いてます🥺 ゆっくりお話できたら嬉しいな。待ってるね♡'
-  },
-  {
-    time: '0:45', reason: '超深夜：コアユーザーへのリーチ',
-    title: 'こんな時間にごめんね…でも会いたかった🥺',
-    body: '本当にこんな時間にごめんなさい笑 でも気づいたら日記を書きたくなっちゃった。今夜はゆっくりまったり、一緒に過ごしませんか？お待ちしてます♡'
-  },
-  {
-    time: '1:30', reason: '深夜帯：熱量高いユーザーにリーチ',
-    title: 'まだ起きてる人、いるかな？🌙',
-    body: 'こんな時間まで起きてる人、きっと気が合うと思う笑 ぜひお店に遊びに来てください！一緒にまったりしようよ〜！'
-  }
-];
+    body {
+      font-family: var(--sans);
+      color: var(--ink);
+      background:
+        radial-gradient(900px 500px at 80% -10%, #f5ece5 0%, transparent 60%),
+        radial-gradient(700px 500px at -10% 110%, #efe4ea 0%, transparent 55%),
+        var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      min-height: 100%;
+    }
 
-/* ========== 状態管理 ========== */
-// 各日の初期データを生成するファクトリー
-function makeDayData(overrides) {
-  var base = {
-    media: [],
-    times: { '朝': 0, '昼': 0, '夕方': 0, '夜': 0, '深夜': 0 },
-    type: '', typeOther: '',
-    mood: '', moodOther: '',
-    story: ''
-  };
-  if (overrides) Object.assign(base, overrides);
-  return base;
-}
+    .stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px
+    }
 
-var appState = {
-  days: 1,
-  limit: 2,
-  activeInputDay: 1,
-  activeOutputDay: 1,
-  // 各日の生成済み提案キャッシュ（時間一括コピー用）
-  generatedProposals: { 1: [], 2: [], 3: [] },
-  dayInputs: {
-    1: makeDayData({ media: ['写真'], times: { '朝': 0, '昼': 0, '夕方': 0, '夜': 1, '深夜': 1 }, type: '出勤・告知', mood: '甘えたい', story: '新しいワンピース着た' }),
-    2: makeDayData(),
-    3: makeDayData()
-  }
-};
+    .tag {
+      font-family: var(--serif);
+      letter-spacing: .14em;
+      color: var(--wine);
+      font-size: 12px;
+      opacity: .85
+    }
 
-/* ========== 画面遷移 ========== */
-function go(id) {
-  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
-  document.getElementById('s-' + id).classList.add('active');
-  document.getElementById('main-scr').scrollTop = 0;
-  if (id === 'input') renderInputFields();
-}
+    .phone {
+      width: 392px;
+      max-width: 94vw;
+      height: min(820px, 90vh);
+      background: var(--card);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 40px 80px -30px rgba(60, 20, 35, .45), 0 0 0 9px #1c1518, 0 0 0 11px #2c2226;
+      display: flex;
+      flex-direction: column;
+    }
 
-/* ========== 初期化 ========== */
-window.addEventListener('DOMContentLoaded', function() {
-  initCommonChips();
-  initInputTabButtons();
-  renderInputFields();
-});
+    .notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 140px;
+      height: 26px;
+      background: #1c1518;
+      border-radius: 0 0 16px 16px;
+      z-index: 40
+    }
 
-/* ========== 共通チップ（何日分・本数） ========== */
-function initCommonChips() {
-  // 何日分
-  document.querySelectorAll('#chips-days .chip').forEach(function(chip) {
-    chip.addEventListener('click', function() {
-      document.querySelectorAll('#chips-days .chip').forEach(function(c) { c.classList.remove('sel'); });
-      chip.classList.add('sel');
-      var newDays = parseInt(chip.getAttribute('data-val'));
-      appState.days = newDays;
-      if (appState.activeInputDay > newDays) appState.activeInputDay = 1;
-      renderInputFields();
-    });
-  });
+    .topbar {
+      height: 46px;
+      flex: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500
+    }
 
-  // 1日あたりの本数
-  document.querySelectorAll('#chips-limit .chip').forEach(function(chip) {
-    chip.addEventListener('click', function() {
-      document.querySelectorAll('#chips-limit .chip').forEach(function(c) { c.classList.remove('sel'); });
-      chip.classList.add('sel');
-      appState.limit = parseInt(chip.getAttribute('data-val'));
-      // 全日の時間帯合計が新しい上限を超えていればリセット
-      for (var d = 1; d <= 3; d++) {
-        if (timesTotal(d) > appState.limit) resetFieldForDay(d, 'times');
+    .scr {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      position: relative
+    }
+
+    .scr::-webkit-scrollbar {
+      width: 0
+    }
+
+    .screen {
+      display: none;
+      padding: 8px 20px 28px;
+      animation: fade .38s ease both
+    }
+
+    .screen.active {
+      display: block
+    }
+
+    @keyframes fade {
+      from {
+        opacity: 0;
+        transform: translateY(8px)
       }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    h1.brand {
+      font-family: var(--serif);
+      font-weight: 700;
+      color: var(--wine);
+      margin: 0;
+      letter-spacing: .02em
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6
+    }
+
+    .label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--wine);
+      margin: 18px 0 8px;
+      letter-spacing: .02em
+    }
+
+    .label .opt {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 11px;
+      margin-left: 6px
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px
+    }
+
+    .chip {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      transition: .18s;
+      user-select: none;
+    }
+
+    .chip:active {
+      transform: scale(.96)
+    }
+
+    .chip.sel {
+      background: var(--wine);
+      border-color: var(--wine);
+      color: #fff;
+      box-shadow: 0 6px 14px -6px rgba(122, 31, 61, .6)
+    }
+
+    .other-input-wrap {
+      display: none;
+      margin-top: 8px;
+      animation: fade .2s ease both
+    }
+
+    .other-input-wrap.active {
+      display: block
+    }
+
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-family: var(--sans);
+      font-size: 14px;
+      color: var(--ink);
+      resize: none;
+      min-height: 74px;
+      background: #fff;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--wine2);
+      box-shadow: 0 0 0 3px var(--faint)
+    }
+
+    .field {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 13px 15px;
+      font-family: var(--sans);
+      font-size: 15px;
+      background: #fff
+    }
+
+    .field:focus {
+      outline: none;
+      border-color: var(--wine2);
+      box-shadow: 0 0 0 3px var(--faint)
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 16px;
+      padding: 15px;
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 15px;
+      background: linear-gradient(135deg, var(--wine), var(--wine2));
+      color: #fff;
+      cursor: pointer;
+      margin-top: 22px;
+      box-shadow: 0 14px 26px -12px rgba(122, 31, 61, .7);
+      transition: .18s;
+      letter-spacing: .04em;
+    }
+
+    .btn:active {
+      transform: translateY(1px)
+    }
+
+    .btn.ghost {
+      background: #fff;
+      color: var(--wine);
+      border: 1px solid var(--line);
+      box-shadow: none;
+      font-weight: 600;
+      margin-top: 10px
+    }
+
+    .login-wrap {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+      padding: 0 4px
+    }
+
+    .crest {
+      width: 62px;
+      height: 62px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--wine), var(--wine2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-family: var(--serif);
+      font-size: 30px;
+      font-weight: 700;
+      box-shadow: 0 16px 30px -14px rgba(122, 31, 61, .7);
+      margin-bottom: 10px
+    }
+
+    .sec {
+      margin-top: 20px
+    }
+
+    .sec-h {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px
+    }
+
+    .sec-n {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--wine);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: none
+    }
+
+    .sec-t {
+      font-weight: 700;
+      font-size: 14.5px
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 13px 15px;
+      background: #fff;
+      margin-bottom: 10px;
+      box-shadow: 0 8px 18px -14px rgba(60, 20, 35, .25)
+    }
+
+    .slot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px
+    }
+
+    .slot .t {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--wine)
+    }
+
+    .reason {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 9px;
+      border-radius: 999px;
+      text-align: center
+    }
+
+    .r-tani {
+      background: #eaf4f0;
+      color: var(--teal)
+    }
+
+    .r-mise {
+      background: #f6efe1;
+      color: var(--amber)
+    }
+
+    .copyrow {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px
+    }
+
+    .copyrow .x {
+      font-size: 14px;
+      line-height: 1.6;
+      flex: 1
+    }
+
+    .copybtn {
+      flex: none;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      color: var(--wine);
+      font-weight: 700;
+      font-size: 12px;
+      padding: 7px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: .15s
+    }
+
+    .copybtn:active {
+      transform: scale(.95)
+    }
+
+    .body-draft {
+      font-size: 14px;
+      line-height: 1.85;
+      white-space: pre-wrap
+    }
+
+    .ex-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px
+    }
+
+    .t-tag {
+      font-size: 10.5px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--faint);
+      color: var(--wine)
+    }
+
+    .pv {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #eaf4f0;
+      color: var(--teal)
+    }
+
+    .trend {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 7px;
+      line-height: 1.5
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 26px;
+      transform: translate(-50%, 20px);
+      opacity: 0;
+      background: #2a2226;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 11px 18px;
+      border-radius: 12px;
+      transition: .28s;
+      z-index: 50;
+      pointer-events: none;
+      box-shadow: 0 12px 24px -10px rgba(0, 0, 0, .5);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0)
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 14px;
+      line-height: 1.6
+    }
+
+    .disclaimer {
+      text-align: center;
+      font-size: 11px;
+      color: #9a8fae;
+      margin-top: 4px
+    }
+
+    /* 動的追加スタイル */
+    .tabs-wrap {
+      margin-top: 18px;
+    }
+
+    .tab-header {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid var(--line);
+      padding-bottom: 8px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      border: none;
+      background: none;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 8px 0;
+      text-align: center;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -10px;
+      transition: .15s;
+    }
+
+    .tab-btn.active {
+      color: var(--wine);
+      font-weight: 700;
+      border-bottom-color: var(--wine);
+    }
+
+    .reset-link {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 11px;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+      font-family: var(--sans);
+    }
+
+    .reset-link:hover {
+      color: var(--wine);
+    }
+
+    .err-msg {
+      background: #FDF2F4;
+      border: 1px solid #F5C6CB;
+      color: #721C24;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin-top: 14px;
+      display: none;
+      line-height: 1.5;
+      animation: fade .28s ease both;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="stage">
+    <div class="tag">写メ日記アシスト ｜ MOCK（ダミーデータ）</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="topbar"><span>9:41</span><span>●●●　5G　🔋</span></div>
+      <div class="scr">
+
+        <section class="screen active" id="s-login">
+          <div class="login-wrap">
+            <div class="crest">写</div>
+            <h1 class="brand" style="font-size:26px">写メ日記アシスト</h1>
+            <p class="sub">合言葉を入れてログインしてください。<br>スマホで約2分、コピペで投稿。</p>
+            <div style="margin-top:18px">
+              <div class="label">合言葉</div>
+              <input class="field" type="password" value="------" aria-label="合言葉">
+            </div>
+            <button class="btn" onclick="go('input')">ログイン</button>
+            <p class="disclaimer">※ これは動作イメージのモックです</p>
+          </div>
+        </section>
+
+        <section class="screen" id="s-input">
+          <h1 class="brand" style="font-size:21px; margin-top:6px">今日の投稿をつくる</h1>
+          <p class="sub">選んで、ネタを書くだけ。</p>
+
+          <!-- 共通設定: 何日分 -->
+          <div class="label">何日分</div>
+          <div class="chips" data-single id="chips-days">
+            <span class="chip sel" data-val="1">1日</span>
+            <span class="chip" data-val="2">2日</span>
+            <span class="chip" data-val="3">3日</span>
+          </div>
+
+          <!-- 共通設定: 1日あたりの本数 -->
+          <div class="label">1日あたりの本数</div>
+          <div class="chips" data-single id="chips-limit">
+            <span class="chip" data-val="1">1枚</span>
+            <span class="chip sel" data-val="2">2枚</span>
+            <span class="chip" data-val="3">3枚</span>
+            <span class="chip" data-val="4">4枚</span>
+            <span class="chip" data-val="5">5枚</span>
+          </div>
+
+          <!-- 動的入力切り替えタブ -->
+          <div class="tabs-wrap" id="input-tabs-wrap" style="display: none;">
+            <div class="tab-header">
+              <button class="tab-btn active" data-day="1">1日目</button>
+              <button class="tab-btn" data-day="2" style="display: none;">2日目</button>
+              <button class="tab-btn" data-day="3" style="display: none;">3日目</button>
+            </div>
+          </div>
+
+          <!-- 日毎の設定エリア（JavaScriptで切り替え） -->
+          <div id="day-fields-area" style="margin-top: 10px;">
+            <!-- 掲載するメディア -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px;">
+              <div class="label" style="margin:0;">掲載するメディア</div>
+              <button class="reset-link" onclick="resetField('media')">リセット</button>
+            </div>
+            <div class="chips" id="chips-media" style="margin-top:8px;">
+              <span class="chip" data-val="写真">写真</span>
+              <span class="chip" data-val="動画">動画</span>
+            </div>
+
+            <!-- 希望の時間帯 -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px;">
+              <div class="label" style="margin:0;">希望の時間帯</div>
+              <button class="reset-link" onclick="resetField('times')">リセット</button>
+            </div>
+            <div class="chips" id="chips-times" style="margin-top:8px;">
+              <span class="chip" data-val="朝">朝</span>
+              <span class="chip" data-val="昼">昼</span>
+              <span class="chip" data-val="夕方">夕方</span>
+              <span class="chip" data-val="夜">夜</span>
+              <span class="chip" data-val="深夜">深夜</span>
+            </div>
+
+            <!-- 日記タイプ -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px;">
+              <div class="label" style="margin:0;">日記タイプ</div>
+              <button class="reset-link" onclick="resetField('type')">リセット</button>
+            </div>
+            <div class="chips" data-single id="chips-type" style="margin-top:8px;">
+              <span class="chip" data-val="お礼">お礼</span>
+              <span class="chip" data-val="出勤・告知">出勤・告知</span>
+              <span class="chip" data-val="日常ネタ">日常ネタ</span>
+              <span class="chip" data-val="誘い">誘い</span>
+              <span class="chip" data-val="限定告知">限定告知</span>
+              <span class="chip" data-val="問いかけ">問いかけ</span>
+              <span class="chip" data-val="その他">その他</span>
+            </div>
+            <div class="other-input-wrap" id="wrap-other-type">
+              <input class="field" type="text" id="input-other-type" placeholder="その他の日記タイプを入力"
+                oninput="updateDataFromUI()">
+            </div>
+
+            <!-- 気分・状況 -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px;">
+              <div class="label" style="margin:0;">気分・状況</div>
+              <button class="reset-link" onclick="resetField('mood')">リセット</button>
+            </div>
+            <div class="chips" data-single id="chips-mood" style="margin-top:8px;">
+              <span class="chip" data-val="元気">元気</span>
+              <span class="chip" data-val="甘えたい">甘えたい</span>
+              <span class="chip" data-val="しっとり">しっとり</span>
+              <span class="chip" data-val="クール">クール</span>
+              <span class="chip" data-val="お疲れ">お疲れ</span>
+              <span class="chip" data-val="その他">その他</span>
+            </div>
+            <div class="other-input-wrap" id="wrap-other-mood">
+              <input class="field" type="text" id="input-other-mood" placeholder="その他の気分・状況を入力"
+                oninput="updateDataFromUI()">
+            </div>
+
+            <!-- 今日のネタ -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px;">
+              <div class="label" style="margin:0;">今日のネタ<span class="opt">自由記述・任意</span></div>
+              <button class="reset-link" onclick="resetField('story')">リセット</button>
+            </div>
+            <textarea id="textarea-story" placeholder="例）新しいワンピース着た／お客さんに褒められた" oninput="updateDataFromUI()"
+              style="margin-top:8px;"></textarea>
+          </div>
+
+          <!-- 警告表示エリア -->
+          <div class="err-msg" id="err-msg"></div>
+
+          <button class="btn" onclick="submitForm()">提案をつくる</button>
+          <button class="btn ghost" onclick="go('login')">ログアウト</button>
+        </section>
+
+        <section class="screen" id="s-output">
+          <h1 class="brand" style="font-size:21px; margin-top:6px">今日の提案</h1>
+          <p class="sub">コピーして、ヘブンネットの予約投稿に貼るだけ。</p>
+
+          <!-- 出力切り替えタブ（動的表示） -->
+          <div class="tabs-wrap" id="output-tabs-wrap" style="margin-bottom:14px; display: none;">
+            <div class="tab-header" id="output-tab-header">
+              <!-- 動的挿入 -->
+            </div>
+          </div>
+
+          <!-- 動的提案出力エリア -->
+          <div id="output-proposals-area">
+            <!-- 投稿時間セクション -->
+            <div class="sec" id="sec-times">
+              <div class="sec-h"><span class="sec-n">1</span><span class="sec-t">おすすめの投稿時間</span></div>
+              <div id="times-list-container">
+                <!-- 動的挿入 -->
+              </div>
+              <button class="btn ghost" style="margin-top:10px" onclick="cpTimes(this)">時間の一覧をコピー</button>
+            </div>
+
+            <!-- 提案内容セクション -->
+            <div class="sec">
+              <div class="sec-h"><span class="sec-n">2</span><span class="sec-t">提案内容（本数ごと）</span></div>
+              <div id="proposals-list-container">
+                <!-- 動的挿入 -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 実例セクション -->
+          <div class="sec">
+            <div class="sec-h"><span class="sec-n">3</span><span class="sec-t">参考の実例（伸びた投稿）</span></div>
+            <div class="card">
+              <div class="x" style="font-size:14px">【お礼】昨日はありがとう♡ また会いたいな</div>
+              <div class="ex-tags"><span class="t-tag">お礼</span><span class="t-tag">夜</span><span
+                  class="t-tag">写真</span><span class="pv">PV高</span></div>
+              <div class="trend">傾向：夜＋お礼は伸びやすい（相関の目安）</div>
+            </div>
+            <div class="card">
+              <div class="x" style="font-size:14px">今夜ひとりなの、さみしいな…🌙</div>
+              <div class="ex-tags"><span class="t-tag">誘い</span><span class="t-tag">深夜</span><span
+                  class="t-tag">動画</span><span class="pv">PV高</span></div>
+              <div class="trend">傾向：動画＋深夜は伸びやすい（相関の目安）</div>
+            </div>
+          </div>
+
+          <button class="btn ghost" onclick="go('input')">← 入力に戻る</button>
+          <p class="hint">時間は「希望 × 市場の谷間 × 店内分散」から。<br>文章は本人の高PV手本＋文体＋今日のネタから生成。</p>
+        </section>
+
+      </div>
+      <div class="toast" id="toast">コピーしました</div>
+    </div>
+    <div class="tag" style="opacity:.6">タップで操作できます（チップ選択・コピー・画面遷移）</div>
+  </div>
+
+  <script>
+    // デモデータ定義
+    var demoData = {
+      1: [
+        { time: "21:15", reason: "谷間：夜はアクセス多・投稿少", title: "21時から待ってます☺️ ちょっと甘えたい夜🌙", body: "こんばんは♡ 今日は新しいワンピース着てみたよ〜☺️ ちょっと大人っぽいかな？\n21時から出勤してるので、会いに来てくれたら嬉しいな🌙 今夜は甘えたい気分です。待ってるね。" },
+        { time: "22:30", reason: "店内が空き：自店が固まらない", title: "新しいワンピ、見てほしいな♡", body: "お疲れ様です✨ さっきアップした写真 of ワンピース、実は新しく買ったやつなんだ〜👗 直接見るともっと可愛いから、ぜひお店に確かめに来てね？まったりお話しましょう♡" }
+      ],
+      2: [
+        { time: "20:45", reason: "ピーク帯の直前で埋もれない", title: "私の一番お気に入りの私服、公開しちゃいます👗✨", body: "今日の出勤服は、私が一番大好きなコーディネートにしてみましたお気に入りの服を着るとそれだけでテンション上がっちゃうな〜！今夜はこのハッピーな気分のまま、みんなと楽しくお話ししたいですっ！お店で待ってるね〜！" },
+        { time: "23:15", reason: "ゴールデンタイムで閲覧者増", title: "こういう服着てる女の子、好きですか…？🥺", body: "夜遅くに更新ごめんね。今日の服、実はみんなに褒められたくて選んだんだ。どうかな、似合ってるかな…？感想は直接おねだりしちゃおっと。深夜のまったりタイム、一緒に過ごそうね♡" }
+      ],
+      3: [
+        { time: "19:30", reason: "帰宅時間に合わせて閲覧数増", title: "【必読？】私の取扱説明書（トリセツ）作ってみたよ😂", body: "唐突だけど、私のトリセツを書いてみます！笑 ①ほめられるとすぐ照れます ②美味しいもの（特にスイーツ）をくれると懐きます ③寂しがり屋なのでたくさん構ってください！…どうかな？笑 これを踏えて、今夜私を上手に扱ってくれる人、大募集です♡" },
+        { time: "0:10", reason: "たまにする深夜投稿でチェックするユーザー増", title: "トリセツの隠された裏ページ、教えるね🤫", body: "夜遅い時間は、トリセツには書いてない「ちょっぴり甘えん坊モード」が発動しちゃいます……。いつもよりおねだり増えちゃうかもだけど、受け止めてくれる？秘密の時間、二人でまったり過ごそうね。待います🌙" }
+      ]
+    };
+
+    // 状態管理オブジェクト
+    var appState = {
+      days: 1, // 何日分 (1, 2, 3)
+      limit: 2, // 1日あたりの本数 (1〜5)
+      activeInputDay: 1, // 入力画面でアクティブな日 (1, 2, 3)
+      activeOutputDay: 1, // 出力画面でアクティブな日 (1, 2, 3)
+
+      // 各日ごとの入力状態
+      dayInputs: {
+        1: {
+          media: ["写真"], // 掲載するメディア
+          times: { "朝": 0, "昼": 0, "夕方": 0, "夜": 1, "深夜": 0 }, // 希望の時間帯カウント
+          type: "出勤・告知", // 日記タイプ
+          typeOther: "",
+          mood: "甘えたい", // 気分・状況
+          moodOther: "",
+          story: "新しいワンピース着た" // 今日のネタ
+        },
+        2: {
+          media: [],
+          times: { "朝": 0, "昼": 0, "夕方": 0, "夜": 0, "深夜": 0 },
+          type: "",
+          typeOther: "",
+          mood: "",
+          moodOther: "",
+          story: ""
+        },
+        3: {
+          media: [],
+          times: { "朝": 0, "昼": 0, "夕方": 0, "夜": 0, "深夜": 0 },
+          type: "",
+          typeOther: "",
+          mood: "",
+          moodOther: "",
+          story: ""
+        }
+      }
+    };
+
+    // 画面遷移
+    function go(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('s-' + id).classList.add('active');
+      document.querySelector('.scr').scrollTop = 0;
+
+      if (id === 'input') {
+        renderInputFields();
+      }
+    }
+
+    // 初期化処理
+    window.addEventListener('DOMContentLoaded', function () {
+      initInputEventListeners();
       renderInputFields();
     });
-  });
-}
 
-/* ========== 入力タブボタン ========== */
-function initInputTabButtons() {
-  document.querySelectorAll('#input-tab-header .tab-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      updateDataFromUI(); // 現在日のデータを退避
-      appState.activeInputDay = parseInt(btn.getAttribute('data-day'));
-      renderInputFields();
-    });
-  });
-}
+    // イベントリスナーのセットアップ（共通部分のみ）
+    function initInputEventListeners() {
+      // 何日分
+      document.querySelectorAll('#chips-days .chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          document.querySelectorAll('#chips-days .chip').forEach(c => c.classList.remove('sel'));
+          chip.classList.add('sel');
+          appState.days = parseInt(chip.getAttribute('data-val'));
 
-/* ========== 入力UIの描画（state → UI） ========== */
-function renderInputFields() {
-  var day = appState.activeInputDay;
-  var data = appState.dayInputs[day];
+          // アクティブ入力日が設定日数を超えていたら1に戻す
+          if (appState.activeInputDay > appState.days) {
+            appState.activeInputDay = 1;
+          }
 
-  // --- タブ表示制御 ---
-  var tabsWrap = document.getElementById('input-tabs-wrap');
-  if (appState.days > 1) {
-    tabsWrap.style.display = 'block';
-    for (var i = 1; i <= 3; i++) {
-      var btn = document.querySelector('#input-tab-header .tab-btn[data-day="' + i + '"]');
-      btn.style.display = (i <= appState.days) ? '' : 'none';
-      if (i <= appState.days) btn.classList.toggle('active', i === day);
-    }
-  } else {
-    tabsWrap.style.display = 'none';
-  }
-
-  // --- 掲載するメディア ---
-  document.querySelectorAll('#chips-media .chip').forEach(function(chip) {
-    chip.classList.toggle('sel', data.media.indexOf(chip.getAttribute('data-val')) !== -1);
-  });
-
-  // --- 希望の時間帯 ---
-  var total = timesTotal(day);
-  var atLimit = (total >= appState.limit);
-  document.querySelectorAll('#chips-times .chip').forEach(function(chip) {
-    var val = chip.getAttribute('data-val');
-    var count = data.times[val] || 0;
-    if (count > 0) {
-      chip.classList.add('sel');
-      chip.classList.remove('disabled');
-      chip.textContent = val + ' (' + count + ')';
-    } else {
-      chip.classList.remove('sel');
-      // 上限に達しているがまだ選択されていないチップは薄くする
-      chip.classList.toggle('disabled', atLimit);
-      chip.textContent = val;
-    }
-  });
-  document.getElementById('times-count').textContent = total;
-  document.getElementById('times-limit').textContent = appState.limit;
-
-  // --- 日記タイプ ---
-  document.querySelectorAll('#chips-type .chip').forEach(function(chip) {
-    chip.classList.toggle('sel', data.type === chip.getAttribute('data-val'));
-  });
-  var otherTypeWrap = document.getElementById('wrap-other-type');
-  document.getElementById('input-other-type').value = data.typeOther || '';
-  otherTypeWrap.classList.toggle('active', data.type === 'その他');
-
-  // --- 気分・状況 ---
-  document.querySelectorAll('#chips-mood .chip').forEach(function(chip) {
-    chip.classList.toggle('sel', data.mood === chip.getAttribute('data-val'));
-  });
-  var otherMoodWrap = document.getElementById('wrap-other-mood');
-  document.getElementById('input-other-mood').value = data.moodOther || '';
-  otherMoodWrap.classList.toggle('active', data.mood === 'その他');
-
-  // --- 今日のネタ ---
-  document.getElementById('textarea-story').value = data.story || '';
-
-  // チップのクリックイベントを付け直す（cloneNode で古いイベントを除去）
-  bindDynamicChipEvents();
-}
-
-/* ========== UI → state への同期 ========== */
-function updateDataFromUI() {
-  var day = appState.activeInputDay;
-  var data = appState.dayInputs[day];
-  data.story = document.getElementById('textarea-story').value;
-  data.typeOther = document.getElementById('input-other-type').value;
-  data.moodOther = document.getElementById('input-other-mood').value;
-}
-
-/* ========== 動的チップイベントのバインド ========== */
-function bindDynamicChipEvents() {
-  // メディア（複数選択トグル）
-  refreshChipGroup('#chips-media', function(chip, val) {
-    var list = appState.dayInputs[appState.activeInputDay].media;
-    var idx = list.indexOf(val);
-    if (idx !== -1) list.splice(idx, 1); else list.push(val);
-    renderInputFields();
-  });
-
-  // 時間帯（カウンター）
-  refreshChipGroup('#chips-times', function(chip, val) {
-    var day = appState.activeInputDay;
-    var counts = appState.dayInputs[day].times;
-    var total = timesTotal(day);
-    var cur = counts[val] || 0;
-
-    if (cur > 0) {
-      // 選択済み → 再タップで -1（0になったら未選択）
-      counts[val] = cur - 1;
-    } else {
-      // 未選択 → 上限未満なら +1
-      if (total < appState.limit) counts[val] = 1;
-    }
-    renderInputFields();
-  });
-
-  // 日記タイプ（単一選択トグル）
-  refreshChipGroup('#chips-type', function(chip, val) {
-    var d = appState.activeInputDay;
-    appState.dayInputs[d].type = (appState.dayInputs[d].type === val) ? '' : val;
-    renderInputFields();
-  });
-
-  // 気分・状況（単一選択トグル）
-  refreshChipGroup('#chips-mood', function(chip, val) {
-    var d = appState.activeInputDay;
-    appState.dayInputs[d].mood = (appState.dayInputs[d].mood === val) ? '' : val;
-    renderInputFields();
-  });
-}
-
-/** チップグループのノードを複製してイベントを付け直す汎用ユーティリティ */
-function refreshChipGroup(selector, handler) {
-  document.querySelectorAll(selector + ' .chip').forEach(function(chip) {
-    var fresh = chip.cloneNode(true);
-    chip.parentNode.replaceChild(fresh, chip);
-    fresh.addEventListener('click', function() {
-      handler(fresh, fresh.getAttribute('data-val'));
-    });
-  });
-}
-
-/* ========== リセット ========== */
-function resetField(fieldName) {
-  updateDataFromUI();
-  resetFieldForDay(appState.activeInputDay, fieldName);
-  renderInputFields();
-}
-
-function resetFieldForDay(day, fieldName) {
-  var data = appState.dayInputs[day];
-  if (fieldName === 'media')       { data.media = []; }
-  else if (fieldName === 'times')  { data.times = { '朝': 0, '昼': 0, '夕方': 0, '夜': 0, '深夜': 0 }; }
-  else if (fieldName === 'type')   { data.type = ''; data.typeOther = ''; }
-  else if (fieldName === 'mood')   { data.mood = ''; data.moodOther = ''; }
-  else if (fieldName === 'story')  { data.story = ''; }
-}
-
-/* ========== ヘルパー ========== */
-function timesTotal(day) {
-  return Object.values(appState.dayInputs[day].times).reduce(function(a, b) { return a + b; }, 0);
-}
-
-/* ========== バリデーション ========== */
-function validateInputs() {
-  updateDataFromUI();
-  var errors = [];
-
-  for (var d = 1; d <= appState.days; d++) {
-    var data = appState.dayInputs[d];
-    var prefix = appState.days > 1 ? ('【' + d + '日目】') : '';
-
-    if (data.media.length === 0) {
-      errors.push(prefix + '掲載するメディアを選択してください。');
-    }
-    if (!data.type) {
-      errors.push(prefix + '日記タイプを選択してください。');
-    } else if (data.type === 'その他' && !data.typeOther.trim()) {
-      errors.push(prefix + 'その他の日記タイプの内容を入力してください。');
-    }
-    if (!data.mood) {
-      errors.push(prefix + '気分・状況を選択してください。');
-    } else if (data.mood === 'その他' && !data.moodOther.trim()) {
-      errors.push(prefix + 'その他の気分・状況の内容を入力してください。');
-    }
-    var t = timesTotal(d);
-    if (t !== appState.limit) {
-      errors.push(prefix + '希望の時間帯を合計 ' + appState.limit + ' 個選択してください（現在: ' + t + ' 個）。');
-    }
-  }
-
-  var errDiv = document.getElementById('err-msg');
-  if (errors.length > 0) {
-    errDiv.innerHTML = errors.join('<br>');
-    errDiv.style.display = 'block';
-    // エラー表示へスクロール
-    setTimeout(function() {
-      errDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 50);
-    return false;
-  }
-  errDiv.style.display = 'none';
-  errDiv.innerHTML = '';
-  return true;
-}
-
-/* ========== フォーム送信 ========== */
-function submitForm() {
-  if (validateInputs()) {
-    appState.activeOutputDay = 1;
-    buildAllProposals();
-    renderOutputTabs();
-    renderActiveDayOutput();
-    go('output');
-  }
-}
-
-/* ========== 提案データの一括生成 ========== */
-function buildAllProposals() {
-  for (var d = 1; d <= appState.days; d++) {
-    appState.generatedProposals[d] = buildProposalsForDay(d);
-  }
-}
-
-function buildProposalsForDay(day) {
-  var proposals = [];
-  var baseList = DEMO[day] || [];
-
-  for (var i = 0; i < appState.limit; i++) {
-    var base = baseList[i] || DUMMY_EXTRAS[i - baseList.length] || DUMMY_EXTRAS[DUMMY_EXTRAS.length - 1];
-    proposals.push({
-      time: base.time,
-      reason: base.reason,
-      title: base.title,
-      body: base.body
-    });
-  }
-  return proposals;
-}
-
-/* ========== 出力タブ描画 ========== */
-function renderOutputTabs() {
-  var header = document.getElementById('output-tab-header');
-  header.innerHTML = '';
-  var tabsWrap = document.getElementById('output-tabs-wrap');
-
-  if (appState.days > 1) {
-    tabsWrap.style.display = 'block';
-    for (var i = 1; i <= appState.days; i++) {
-      (function(dayNum) {
-        var btn = document.createElement('button');
-        btn.className = 'tab-btn' + (dayNum === appState.activeOutputDay ? ' active' : '');
-        btn.setAttribute('data-day', dayNum);
-        btn.textContent = dayNum + '日目';
-        btn.addEventListener('click', function() {
-          appState.activeOutputDay = dayNum;
-          header.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-          btn.classList.add('active');
-          renderActiveDayOutput();
-          document.getElementById('main-scr').scrollTop = 0;
+          renderInputFields();
         });
-        header.appendChild(btn);
-      })(i);
+      });
+
+      // 1日あたりの本数
+      document.querySelectorAll('#chips-limit .chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          document.querySelectorAll('#chips-limit .chip').forEach(c => c.classList.remove('sel'));
+          chip.classList.add('sel');
+          appState.limit = parseInt(chip.getAttribute('data-val'));
+
+          // 時間帯のカウント合計が新しい制限を超えていたら、時間帯をリセットする
+          for (var d = 1; d <= 3; d++) {
+            var total = Object.values(appState.dayInputs[d].times).reduce((a, b) => a + b, 0);
+            if (total > appState.limit) {
+              resetFieldForDay(d, 'times');
+            }
+          }
+
+          renderInputFields();
+        });
+      });
+
+      // 入力用タブ切り替え
+      document.querySelectorAll('#input-tabs-wrap .tab-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          // 現在のフォームデータを一旦保存
+          updateDataFromUI();
+
+          // アクティブタブを切り替え
+          appState.activeInputDay = parseInt(btn.getAttribute('data-day'));
+          renderInputFields();
+        });
+      });
     }
-  } else {
-    tabsWrap.style.display = 'none';
-  }
-}
 
-/* ========== 選択された日の出力描画 ========== */
-function renderActiveDayOutput() {
-  var day = appState.activeOutputDay;
-  var proposals = appState.generatedProposals[day] || [];
+    // UIの描画（状態からUIへのバインド）
+    function renderInputFields() {
+      var day = appState.activeInputDay;
+      var data = appState.dayInputs[day];
 
-  // 1. 投稿時間カード
-  var timesContainer = document.getElementById('times-list-container');
-  timesContainer.innerHTML = '';
-  proposals.forEach(function(prop) {
-    var card = document.createElement('div');
-    card.className = 'card slot';
-    var t = document.createElement('span');
-    t.className = 't'; t.textContent = prop.time;
-    var r = document.createElement('span');
-    r.className = 'reason ' + (prop.reason.indexOf('店内') !== -1 ? 'r-mise' : 'r-tani');
-    r.textContent = prop.reason;
-    card.appendChild(t); card.appendChild(r);
-    timesContainer.appendChild(card);
-  });
+      // --- タブ表示の制御 ---
+      var tabsWrap = document.getElementById('input-tabs-wrap');
+      if (appState.days > 1) {
+        tabsWrap.style.display = 'block';
+        for (var i = 1; i <= 3; i++) {
+          var btn = document.querySelector('#input-tabs-wrap .tab-btn[data-day="' + i + '"]');
+          if (i <= appState.days) {
+            btn.style.display = 'block';
+            if (i === day) {
+              btn.classList.add('active');
+            } else {
+              btn.classList.remove('active');
+            }
+          } else {
+            btn.style.display = 'none';
+          }
+        }
+      } else {
+        tabsWrap.style.display = 'none';
+      }
 
-  // 2. 提案カード
-  var propContainer = document.getElementById('proposals-list-container');
-  propContainer.innerHTML = '';
-  proposals.forEach(function(prop, idx) {
-    propContainer.appendChild(buildProposalCard(prop, idx + 1));
-  });
-}
+      // --- 掲載するメディアの描画 ---
+      document.querySelectorAll('#chips-media .chip').forEach(function (chip) {
+        var val = chip.getAttribute('data-val');
+        if (data.media.indexOf(val) !== -1) {
+          chip.classList.add('sel');
+        } else {
+          chip.classList.remove('sel');
+        }
+      });
 
-/* ========== 提案カードのDOM生成 ========== */
-function buildProposalCard(prop, num) {
-  var card = document.createElement('div');
-  card.className = 'card';
-  card.style.marginBottom = '14px';
+      // --- 希望の時間帯の描画 ---
+      document.querySelectorAll('#chips-times .chip').forEach(function (chip) {
+        var val = chip.getAttribute('data-val');
+        var count = data.times[val] || 0;
+        if (count > 0) {
+          chip.classList.add('sel');
+          chip.textContent = val + ' (' + count + ')';
+        } else {
+          chip.classList.remove('sel');
+          chip.textContent = val;
+        }
+      });
 
-  // ヘッダー
-  var hdr = document.createElement('div');
-  hdr.style.cssText = 'font-weight:700; color:var(--wine); font-size:13px; border-bottom:1px solid var(--line); padding-bottom:6px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center';
-  var lbl = document.createElement('span');
-  lbl.textContent = num + '本目の提案 (' + prop.time + '頃)';
-  var bulkBtn = document.createElement('button');
-  bulkBtn.className = 'copybtn';
-  bulkBtn.style.cssText = 'font-size:11px; padding:4px 8px';
-  bulkBtn.textContent = '一括コピー';
-  (function(p) {
-    bulkBtn.addEventListener('click', function() {
-      cp(this, '【タイトル】\n' + p.title + '\n\n【本文】\n' + p.body);
-    });
-  })(prop);
-  hdr.appendChild(lbl); hdr.appendChild(bulkBtn);
-  card.appendChild(hdr);
+      // --- 日記タイプの描画 ---
+      document.querySelectorAll('#chips-type .chip').forEach(function (chip) {
+        var val = chip.getAttribute('data-val');
+        if (data.type === val) {
+          chip.classList.add('sel');
+        } else {
+          chip.classList.remove('sel');
+        }
+      });
 
-  // タイトル案
-  var titleSec = document.createElement('div');
-  titleSec.style.marginBottom = '10px';
-  var titleTag = document.createElement('div');
-  titleTag.style.cssText = 'font-size:11px; font-weight:700; color:var(--muted); margin-bottom:4px';
-  titleTag.textContent = '【タイトル案】';
-  var titleRow = document.createElement('div');
-  titleRow.className = 'copyrow';
-  var titleTxt = document.createElement('span');
-  titleTxt.className = 'x';
-  titleTxt.style.cssText = 'font-weight:600; font-size:13.5px';
-  titleTxt.textContent = prop.title;
-  var copyTitleBtn = document.createElement('button');
-  copyTitleBtn.className = 'copybtn';
-  copyTitleBtn.textContent = 'コピー';
-  (function(p) {
-    copyTitleBtn.addEventListener('click', function() { cp(this, p.title); });
-  })(prop);
-  titleRow.appendChild(titleTxt); titleRow.appendChild(copyTitleBtn);
-  titleSec.appendChild(titleTag); titleSec.appendChild(titleRow);
-  card.appendChild(titleSec);
+      var otherTypeWrap = document.getElementById('wrap-other-type');
+      var otherTypeInput = document.getElementById('input-other-type');
+      otherTypeInput.value = data.typeOther || "";
+      if (data.type === "その他") {
+        otherTypeWrap.classList.add('active');
+      } else {
+        otherTypeWrap.classList.remove('active');
+      }
 
-  // 本文ドラフト
-  var bodySec = document.createElement('div');
-  var bodyTag = document.createElement('div');
-  bodyTag.style.cssText = 'font-size:11px; font-weight:700; color:var(--muted); margin-bottom:4px';
-  bodyTag.textContent = '【本文ドラフト】';
-  var bodyTxt = document.createElement('div');
-  bodyTxt.className = 'body-draft x';
-  bodyTxt.style.cssText = 'font-size:13px; line-height:1.6; background:var(--soft); padding:10px; border-radius:10px; margin-bottom:8px; white-space:pre-wrap';
-  bodyTxt.textContent = prop.body;
-  var copyBodyBtn = document.createElement('button');
-  copyBodyBtn.className = 'copybtn';
-  copyBodyBtn.style.width = '100%';
-  copyBodyBtn.textContent = '本文をコピー';
-  (function(p) {
-    copyBodyBtn.addEventListener('click', function() { cp(this, p.body); });
-  })(prop);
-  bodySec.appendChild(bodyTag); bodySec.appendChild(bodyTxt); bodySec.appendChild(copyBodyBtn);
-  card.appendChild(bodySec);
+      // --- 気分・状況の描画 ---
+      document.querySelectorAll('#chips-mood .chip').forEach(function (chip) {
+        var val = chip.getAttribute('data-val');
+        if (data.mood === val) {
+          chip.classList.add('sel');
+        } else {
+          chip.classList.remove('sel');
+        }
+      });
 
-  return card;
-}
+      var otherMoodWrap = document.getElementById('wrap-other-mood');
+      var otherMoodInput = document.getElementById('input-other-mood');
+      otherMoodInput.value = data.moodOther || "";
+      if (data.mood === "その他") {
+        otherMoodWrap.classList.add('active');
+      } else {
+        otherMoodWrap.classList.remove('active');
+      }
 
-/* ========== 時間一括コピー ========== */
-function cpTimes(btn) {
-  var day = appState.activeOutputDay;
-  var proposals = appState.generatedProposals[day] || [];
-  var lines = proposals.map(function(p, i) { return (i + 1) + '本目：' + p.time; });
-  cp(btn, lines.join('\n'));
-}
+      // --- 今日のネタの描画 ---
+      document.getElementById('textarea-story').value = data.story || "";
 
-/* ========== クリップボード & トースト ========== */
-var toastTimer;
-function cp(btn, text) {
-  try {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(function() { showToast(btn); }).catch(function() { showToast(btn); });
-    } else { showToast(btn); }
-  } catch(e) { showToast(btn); }
-}
-function showToast(btn) {
-  var toast = document.getElementById('toast');
-  toast.classList.add('show');
-  var orig = btn.textContent; btn.textContent = '✓ 済';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(function() {
-    toast.classList.remove('show');
-    btn.textContent = orig;
-  }, 1400);
-}
-</script>
+      // 動的チップクリックの紐付け（毎回やり直すことで挙動を安定化）
+      bindDynamicChipEvents();
+    }
+
+    // フォームの入力項目から状態へのバインド
+    function updateDataFromUI() {
+      var day = appState.activeInputDay;
+      var data = appState.dayInputs[day];
+
+      // 今日のネタ
+      data.story = document.getElementById('textarea-story').value;
+      // その他入力
+      data.typeOther = document.getElementById('input-other-type').value;
+      data.moodOther = document.getElementById('input-other-mood').value;
+    }
+
+    // チップクリックイベントのバインド
+    function bindDynamicChipEvents() {
+      // メディア（複数選択可）
+      document.querySelectorAll('#chips-media .chip').forEach(function (chip) {
+        var newChip = chip.cloneNode(true);
+        chip.parentNode.replaceChild(newChip, chip);
+        newChip.addEventListener('click', function () {
+          var val = newChip.getAttribute('data-val');
+          var list = appState.dayInputs[appState.activeInputDay].media;
+          var idx = list.indexOf(val);
+          if (idx !== -1) {
+            list.splice(idx, 1);
+          } else {
+            list.push(val);
+          }
+          renderInputFields();
+        });
+      });
+
+      // 時間帯（複数回カウント付き）
+      document.querySelectorAll('#chips-times .chip').forEach(function (chip) {
+        var newChip = chip.cloneNode(true);
+        chip.parentNode.replaceChild(newChip, chip);
+        newChip.addEventListener('click', function () {
+          var val = newChip.getAttribute('data-val');
+          var day = appState.activeInputDay;
+          var limit = appState.limit;
+          var counts = appState.dayInputs[day].times;
+          var total = Object.values(counts).reduce((a, b) => a + b, 0);
+
+          if (counts[val] > 0) {
+            if (total < limit) {
+              counts[val]++;
+            } else {
+              // 上限に達している場合は0に戻す（循環リセット）
+              counts[val] = 0;
+            }
+          } else {
+            if (total < limit) {
+              counts[val] = 1;
+            }
+          }
+          renderInputFields();
+        });
+      });
+
+      // 日記タイプ（単一選択）
+      document.querySelectorAll('#chips-type .chip').forEach(function (chip) {
+        var newChip = chip.cloneNode(true);
+        chip.parentNode.replaceChild(newChip, chip);
+        newChip.addEventListener('click', function () {
+          var val = newChip.getAttribute('data-val');
+          var day = appState.activeInputDay;
+          if (appState.dayInputs[day].type === val) {
+            appState.dayInputs[day].type = ""; // トグル解除
+          } else {
+            appState.dayInputs[day].type = val;
+          }
+          renderInputFields();
+        });
+      });
+
+      // 気分・状況（単一選択）
+      document.querySelectorAll('#chips-mood .chip').forEach(function (chip) {
+        var newChip = chip.cloneNode(true);
+        chip.parentNode.replaceChild(newChip, chip);
+        newChip.addEventListener('click', function () {
+          var val = newChip.getAttribute('data-val');
+          var day = appState.activeInputDay;
+          if (appState.dayInputs[day].mood === val) {
+            appState.dayInputs[day].mood = ""; // トグル解除
+          } else {
+            appState.dayInputs[day].mood = val;
+          }
+          renderInputFields();
+        });
+      });
+    }
+
+    // リセット処理
+    function resetField(fieldName) {
+      resetFieldForDay(appState.activeInputDay, fieldName);
+      renderInputFields();
+    }
+
+    function resetFieldForDay(day, fieldName) {
+      var data = appState.dayInputs[day];
+      if (fieldName === 'media') {
+        data.media = [];
+      } else if (fieldName === 'times') {
+        data.times = { "朝": 0, "昼": 0, "夕方": 0, "夜": 0, "深夜": 0 };
+      } else if (fieldName === 'type') {
+        data.type = "";
+        data.typeOther = "";
+      } else if (fieldName === 'mood') {
+        data.mood = "";
+        data.moodOther = "";
+      } else if (fieldName === 'story') {
+        data.story = "";
+      }
+    }
+
+    // バリデーション処理
+    function validateInputs() {
+      updateDataFromUI(); // 最新データを保存
+      var errors = [];
+
+      for (var d = 1; d <= appState.days; d++) {
+        var data = appState.dayInputs[d];
+        var dayPrefix = "【" + d + "日目】";
+
+        // メディア
+        if (data.media.length === 0) {
+          errors.push(dayPrefix + "掲載するメディアを選択してください。");
+        }
+
+        // 日記タイプ
+        if (!data.type) {
+          errors.push(dayPrefix + "日記タイプを選択してください。");
+        } else if (data.type === "その他" && !data.typeOther.trim()) {
+          errors.push(dayPrefix + "その他の日記タイプの内容を入力してください。");
+        }
+
+        // 気分
+        if (!data.mood) {
+          errors.push(dayPrefix + "気分・状況を選択してください。");
+        } else if (data.mood === "その他" && !data.moodOther.trim()) {
+          errors.push(dayPrefix + "その他の気分・状況の内容を入力してください。");
+        }
+
+        // 時間帯の合計カウントと本数のチェック
+        var totalTimes = Object.values(data.times).reduce((a, b) => a + b, 0);
+        if (totalTimes !== appState.limit) {
+          errors.push(dayPrefix + "希望の時間帯を合計" + appState.limit + "個選択してください（現在: " + totalTimes + "個）。");
+        }
+      }
+
+      var errDiv = document.getElementById('err-msg');
+      if (errors.length > 0) {
+        errDiv.innerHTML = errors.join('<br>');
+        errDiv.style.display = 'block';
+
+        // スクロール処理
+        document.querySelector('.scr').scrollTop = errDiv.offsetTop - 20;
+        return false;
+      } else {
+        errDiv.style.display = 'none';
+        errDiv.innerHTML = '';
+        return true;
+      }
+    }
+
+    // フォーム送信
+    function submitForm() {
+      if (validateInputs()) {
+        appState.activeOutputDay = 1;
+        generateProposals();
+        go('output');
+      }
+    }
+
+    // 提案の動的生成
+    function generateProposals() {
+      renderOutputTabs();
+      renderActiveDayProposals();
+    }
+
+    // 出力画面のタブ描画
+    function renderOutputTabs() {
+      var header = document.getElementById('output-tab-header');
+      header.innerHTML = '';
+
+      var tabsWrap = document.getElementById('output-tabs-wrap');
+      if (appState.days > 1) {
+        tabsWrap.style.display = 'block';
+        for (var i = 1; i <= appState.days; i++) {
+          var btn = document.createElement('button');
+          btn.className = 'tab-btn' + (i === appState.activeOutputDay ? ' active' : '');
+          btn.setAttribute('data-day', i);
+          btn.textContent = i + '日目';
+
+          btn.addEventListener('click', function (e) {
+            appState.activeOutputDay = parseInt(this.getAttribute('data-day'));
+            document.querySelectorAll('#output-tab-header .tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            renderActiveDayProposals();
+          });
+
+          header.appendChild(btn);
+        }
+      } else {
+        tabsWrap.style.display = 'none';
+      }
+    }
+
+    // 選択された時間帯リストのフラット化（カウント数に応じて配列を並べる）
+    function getFlatSelectedTimes(timesObj) {
+      var list = [];
+      var order = ["朝", "昼", "夕方", "夜", "深夜"];
+      order.forEach(function (t) {
+        var count = timesObj[t] || 0;
+        for (var i = 0; i < count; i++) {
+          list.push(t);
+        }
+      });
+      return list;
+    }
+
+    // 特定の日の提案のレンダリング
+    function renderActiveDayProposals() {
+      var day = appState.activeOutputDay;
+      var limit = appState.limit;
+      var data = appState.dayInputs[day];
+
+      var timeChips = getFlatSelectedTimes(data.times);
+
+      // 1. 投稿時間セクション
+      var timesListContainer = document.getElementById('times-list-container');
+      timesListContainer.innerHTML = '';
+
+      var currentDayProposals = [];
+      var baseProposals = demoData[day] || [];
+
+      for (var i = 0; i < limit; i++) {
+        var prop = {};
+        var base = baseProposals[i];
+
+        var tLabel = timeChips[i] || "夜";
+
+        if (base) {
+          prop.time = base.time;
+          prop.reason = base.reason;
+          prop.title = base.title;
+          prop.body = base.body;
+        } else {
+          var dummyTimes = ["23:50", "0:45", "1:30"];
+          prop.time = dummyTimes[i - 2] || "21:30";
+          prop.reason = "谷間：" + tLabel + "のすき間時間";
+
+          var theme = data.story || "日常のひとコマ";
+          prop.title = tLabel + "のまったり投稿 ｜ " + theme + "✨";
+          prop.body = "こんばんは♡ 今日は「" + theme + "」な一日でした♪\n" + tLabel + "のまったりタイム、お店で一緒にお話ししませんか？待ってますっ！";
+        }
+
+        currentDayProposals.push(prop);
+
+        var timeCard = document.createElement('div');
+        timeCard.className = 'card slot';
+
+        var timeSpan = document.createElement('span');
+        timeSpan.className = 't';
+        timeSpan.textContent = prop.time;
+
+        var reasonSpan = document.createElement('span');
+        reasonSpan.className = 'reason ' + (prop.reason.indexOf('店内') !== -1 ? 'r-mise' : 'r-tani');
+        reasonSpan.textContent = prop.reason;
+
+        timeCard.appendChild(timeSpan);
+        timeCard.appendChild(reasonSpan);
+        timesListContainer.appendChild(timeCard);
+      }
+
+      // 2. 提案内容セクション
+      var proposalsListContainer = document.getElementById('proposals-list-container');
+      proposalsListContainer.innerHTML = '';
+
+      currentDayProposals.forEach(function (prop, idx) {
+        var propNum = idx + 1;
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.style.marginBottom = '14px';
+
+        var header = document.createElement('div');
+        header.style.cssText = 'font-weight:700; color:var(--wine); font-size:13px; border-bottom:1px solid var(--line); padding-bottom:6px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center';
+
+        var titleLabel = document.createElement('span');
+        titleLabel.textContent = propNum + '本目の提案 (' + prop.time + '頃)';
+
+        var copyAllBtn = document.createElement('button');
+        copyAllBtn.className = 'copybtn';
+        copyAllBtn.style.cssText = 'font-size:11px; padding:4px 8px';
+        copyAllBtn.textContent = '一括コピー';
+        copyAllBtn.addEventListener('click', function () {
+          var text = "【タイトル】\n" + prop.title + "\n\n【本文】\n" + prop.body;
+          cp(this, text);
+        });
+
+        header.appendChild(titleLabel);
+        header.appendChild(copyAllBtn);
+        card.appendChild(header);
+
+        var titleSec = document.createElement('div');
+        titleSec.style.marginBottom = '10px';
+
+        var titleTag = document.createElement('div');
+        titleTag.style.cssText = 'font-size:11px; font-weight:700; color:var(--muted); margin-bottom:4px';
+        titleTag.textContent = '【タイトル案】';
+
+        var titleRow = document.createElement('div');
+        titleRow.className = 'copyrow';
+
+        var titleText = document.createElement('span');
+        titleText.className = 'x';
+        titleText.style.cssText = 'font-weight:600; font-size:13.5px';
+        titleText.textContent = prop.title;
+
+        var copyTitleBtn = document.createElement('button');
+        copyTitleBtn.className = 'copybtn';
+        copyTitleBtn.textContent = 'コピー';
+        copyTitleBtn.addEventListener('click', function () {
+          cp(this, prop.title);
+        });
+
+        titleRow.appendChild(titleText);
+        titleRow.appendChild(copyTitleBtn);
+        titleSec.appendChild(titleTag);
+        titleSec.appendChild(titleRow);
+        card.appendChild(titleSec);
+
+        var bodySec = document.createElement('div');
+
+        var bodyTag = document.createElement('div');
+        bodyTag.style.cssText = 'font-size:11px; font-weight:700; color:var(--muted); margin-bottom:4px';
+        bodyTag.textContent = '【本文ドラフト】';
+
+        var bodyText = document.createElement('div');
+        bodyText.className = 'body-draft x';
+        bodyText.style.cssText = 'font-size:13px; line-height:1.6; background:var(--soft); padding:10px; border-radius:10px; margin-bottom:8px';
+        bodyText.textContent = prop.body;
+
+        var copyBodyBtn = document.createElement('button');
+        copyBodyBtn.className = 'copybtn';
+        copyBodyBtn.style.width = '100%';
+        copyBodyBtn.textContent = '本文をコピー';
+        copyBodyBtn.addEventListener('click', function () {
+          cp(this, prop.body);
+        });
+
+        bodySec.appendChild(bodyTag);
+        bodySec.appendChild(bodyText);
+        bodySec.appendChild(copyBodyBtn);
+        card.appendChild(bodySec);
+
+        proposalsListContainer.appendChild(card);
+      });
+    }
+
+    // 時間一括コピー
+    function cpTimes(btn) {
+      var day = appState.activeOutputDay;
+      var limit = appState.limit;
+      var baseProposals = demoData[day] || [];
+
+      var lines = [];
+      for (var i = 0; i < limit; i++) {
+        var base = baseProposals[i];
+        var time = "21:30";
+        if (base) {
+          time = base.time;
+        } else {
+          var dummyTimes = ["23:50", "0:45", "1:30"];
+          time = dummyTimes[i - 2] || "21:30";
+        }
+        lines.push((i + 1) + "本目：" + time);
+      }
+
+      cp(btn, lines.join('\n'));
+    }
+
+    var tT;
+    function cp(btn, text) {
+      try { if (navigator.clipboard) { navigator.clipboard.writeText(text).then(function () { showToast(btn); }).catch(function () { showToast(btn); }); } else { showToast(btn); } }
+      catch (e) { showToast(btn); }
+    }
+    function showToast(btn) {
+      var t = document.getElementById('toast'); t.classList.add('show');
+      var orig = btn.textContent; btn.textContent = '✓ 済';
+      clearTimeout(tT); tT = setTimeout(function () { t.classList.remove('show'); btn.textContent = orig; }, 1400);
+    }
+  </script>
 </body>
+
 </html>
